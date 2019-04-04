@@ -31,10 +31,11 @@ function buyOption(){
                     product_name: res[i]["product_name"],
                     department_name: res[i]["department_name"],
                     price: res[i]["price"],
-                    stock_quantity: res[i]["stock_quantity"]
+                    stock_quantity: res[i]["stock_quantity"],
+                    product_sales: res[i]["product_sales"]
                 }
             )
-        }
+        }1
         console.log(cTable.getTable(table))
         promptUser()
     })
@@ -47,7 +48,7 @@ function mainMenu(){
                 name:"options",
                 message: "Hello fellow customer, what would you like to do?",
                 type:"list",
-                choices:["Buy AN ITEM", "EXIT"]
+                choices:["BUY AN ITEM", "EXIT"]
             }
         ]).then(function(r){
             if(r.options === "EXIT"){
@@ -92,29 +93,36 @@ function isAvaiable(id, amount){
         if(err) throw err;
         console.log(res)
         if(res[0]["stock_quantity"] >= amount){
-            console.log("buying items " + amount);
+            console.log("Buying product");
             fullfilOrder(id, amount)
         }else{
             console.log("Insufficent quantity");
             mainMenu();
         }
     }
-
     )
 }
-
 function fullfilOrder(id, amount){
     connection.query(
-        `SELECT stock_quantity, price FROM products WHERE ?`, [{
+        `SELECT stock_quantity, price, product_sales FROM products WHERE ?`, [{
             item_id: id
         }], function(err,res){
-            let price = res[0].price;
-            let currentAmount = res[0].stock_quantity;
-            currentAmount -= amount;
+            if(err) throw err;
+            console.log(res)
+            let price = res[0]["price"];
+            let currentAmount = parseInt(res[0]["stock_quantity"]);
+            let productSales = parseFloat(res[0]["product_sales"]);
+            console.log(productSales)
+            let profit = parseInt(amount)*parseFloat(price);
+        
+
+            productSales += profit;
+            currentAmount -= parseInt(amount);
+            console.log(currentAmount)
         
         connection.query(
-            ` UPDATE products SET ? WHERE ?`,[{stock_quantity: currentAmount}, {item_id: id}], function(err,res){
-                console.log("Your order has been procressed. The total cost will be $" + (parseInt(amount)*parseFloat(price) +"."));
+            ` UPDATE products SET ? WHERE ?`,[{stock_quantity: currentAmount, product_sales: productSales}, {item_id: id}], function(err,res){
+                console.log("Your order has been procressed. The total cost will be $" + profit +".");
                 mainMenu();
             })
         
