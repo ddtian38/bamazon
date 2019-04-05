@@ -23,7 +23,6 @@ function buyOption(){
     connection.query("SELECT * FROM products", function(err, res){
         if(err) throw err;
         let table = [];
-        console.log(res[0]["item_id"])
         for(var i = 0; i < res.length; i++){
             table.push(
                 {
@@ -35,9 +34,9 @@ function buyOption(){
                     product_sales: res[i]["product_sales"]
                 }
             )
-        }1
+        }
         console.log(cTable.getTable(table))
-        promptUser()
+        promptUser();
     })
 }
 
@@ -90,15 +89,21 @@ function isAvaiable(id, amount){
         item_id: id
     },
     function(err, res){
-        if(err) throw err;
-        console.log(res)
-        if(res[0]["stock_quantity"] >= amount){
-            console.log("Buying product");
-            fullfilOrder(id, amount)
+        if(res.length > 0){
+            // console.log(res)
+            if(res[0]["stock_quantity"] >= amount){
+                console.log("Buying product");
+                fullfilOrder(id, amount)
+            }else{
+                console.log("Insufficent quantity");
+                mainMenu();
+            }
+
         }else{
-            console.log("Insufficent quantity");
+            console.log("Such an item does not exist.")
             mainMenu();
         }
+
     }
     )
 }
@@ -108,22 +113,39 @@ function fullfilOrder(id, amount){
             item_id: id
         }], function(err,res){
             if(err) throw err;
-            console.log(res)
             let price = res[0]["price"];
             let currentAmount = parseInt(res[0]["stock_quantity"]);
             let productSales = parseFloat(res[0]["product_sales"]);
-            console.log(productSales)
+
             let profit = parseInt(amount)*parseFloat(price);
         
 
             productSales += profit;
             currentAmount -= parseInt(amount);
-            console.log(currentAmount)
+
         
         connection.query(
             ` UPDATE products SET ? WHERE ?`,[{stock_quantity: currentAmount, product_sales: productSales}, {item_id: id}], function(err,res){
                 console.log("Your order has been procressed. The total cost will be $" + profit +".");
-                mainMenu();
+                connection.query("SELECT * FROM products", function(err, res){
+                    if(err) throw err;
+                    let table = [];
+                    for(var i = 0; i < res.length; i++){
+                        table.push(
+                            {
+                                item_id: res[i]["item_id"],
+                                product_name: res[i]["product_name"],
+                                department_name: res[i]["department_name"],
+                                price: res[i]["price"],
+                                stock_quantity: res[i]["stock_quantity"],
+                                product_sales: res[i]["product_sales"]
+                            }
+                        )
+                    }
+                    console.log(cTable.getTable(table))
+                    mainMenu();
+                })
+                
             })
         
         }

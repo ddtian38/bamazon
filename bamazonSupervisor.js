@@ -74,7 +74,6 @@ function createDepartment(){
         ]).then(function(ans){
             connection.query("INSERT INTO departments (department_name, over_head_cost) VALUES(\""+ans.departmentName+"\", " +ans.overheadCost+");", function(err, res){
                 if(err)throw err;
-                console.log(res)
                 mainMenu()
             })
         })

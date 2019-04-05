@@ -54,22 +54,23 @@ function mainMenu(){
 
 function displayTable(query){
     connection.query(query, function(err,res){
-        if(err) throw err;
-        let table = [];
-        console.log(res[0]["item_id"])
-        for(var i = 0; i < res.length; i++){
-            table.push(
-                {
-                    item_id: res[i]["item_id"],
-                    product_name: res[i]["product_name"],
-                    department_name: res[i]["department_name"],
-                    price: res[i]["price"],
-                    stock_quantity: res[i]["stock_quantity"]
-                }
-            )
+        if(res.length > 0){
+            let table = [];
+            for(var i = 0; i < res.length; i++){
+                table.push(
+                    {
+                        item_id: res[i]["item_id"],
+                        product_name: res[i]["product_name"],
+                        department_name: res[i]["department_name"],
+                        price: res[i]["price"],
+                        stock_quantity: res[i]["stock_quantity"]
+                    }
+                )
+            }
+            console.log(cTable.getTable(table))
+            mainMenu();
         }
-        console.log(cTable.getTable(table))
-        mainMenu();
+
     })
 }
 
@@ -85,7 +86,6 @@ function lowInventory(){
 }
 
 function addInventory(){
-    console.log("xx")
     inquirier
         .prompt([
             {
@@ -162,7 +162,6 @@ function addProduct(){
                     let price = parseFloat(r.price);
                     let stockQuantity = parseInt(r.stockQuantity)
                     let query = "INSERT INTO products (product_name, department_name, price, stock_quantity, department_id) VALUES(\"" +productName + "\", \"" + department + "\", \"" + price + "\", \"" +stockQuantity + "\", \""+deptID+"\");";
-                    console.log(query)
                     connection.query(query, function(err,res){
                                 if(err)throw err;
                                 console.log(res)
