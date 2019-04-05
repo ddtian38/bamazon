@@ -2,7 +2,7 @@
 
 In this program, Bamazon is an Amazon-like storefront and it was used through MySQL and Node JS. The app will take in orders from customers and deplete stock from the store's inventory. As a bonus task, the program will also track product sales across the store's departments and then provide a summary of the highest-grossing departments in the store.
 
-## Technolognies:
+## Technologies:
     Node.js
     MySQL
     inquirier NPM
