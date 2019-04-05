@@ -86,6 +86,7 @@ function createDepartment(){
 
 };
 
+//Function logs out of the database.
 function logOut(){
     console.log("Logging out of the database.")
     connection.end()

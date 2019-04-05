@@ -1,7 +1,9 @@
+//Installing npms
 const mysql = require("mysql");
 const inquirier = require("inquirer")
 const cTable = require("console.table")
 
+//Creating connectiont to the database
 const connection = mysql.createConnection({
     hosts: "localhost",
     user: "root",
@@ -18,6 +20,7 @@ function main(){
     })
 }
 
+//Function creates main menu
 function mainMenu(){
     inquirier
         .prompt([
@@ -52,6 +55,8 @@ function mainMenu(){
         })
 }
 
+
+//function takes a query statement of selecting all columns and dsplays the table
 function displayTable(query){
     connection.query(query, function(err,res){
         if(res.length > 0){
@@ -74,17 +79,20 @@ function displayTable(query){
     })
 }
 
-
+//Function will show all products in the inventory
 function viewProducts(){
     let query = "SELECT * FROM products";
     displayTable(query)
 }
 
+//Function will show products in the inventory that have less than five in stock.
 function lowInventory(){
     let query = 'SELECT * from products WHERE stock_quantity < 5';
     displayTable(query);
 }
 
+
+//Function adds more existing products to the inventory 
 function addInventory(){
     inquirier
         .prompt([
@@ -128,6 +136,7 @@ function fullfillCommand(id,amount){
         )
 }
 
+//Function adds new item to the inventory, allowing manager to write the name of the product, which department it exists, the price of the product, and how many in the stock quantity.
 function addProduct(){
     inquirier
         .prompt([
@@ -154,6 +163,7 @@ function addProduct(){
                 }
             }
         ]).then(function(r){
+            //Checks if the department already exists. If it does exist, product will be added. If not, manager is advised to contact the supervisor to add one.
             connection.query("select department_id from departments where department_name = \""+r.department+"\";",function(err,res){
                 if(res.length > 0){
                     let deptID = res[0]["department_id"]
