@@ -1,6 +1,9 @@
+//Installing npms
 const mysql = require("mysql");
 const inquirier = require("inquirer")
 const cTable = require("console.table")
+
+//Creating connectiont to the database
 
 const connection = mysql.createConnection({
     hosts: "localhost",
@@ -18,7 +21,28 @@ function main(){
     })
 }
 
+//Function creates main menu
+function mainMenu(){
+    inquirier
+        .prompt([
+            {
+                name:"options",
+                message: "Hello fellow customer, what would you like to do?",
+                type:"list",
+                choices:["BUY AN ITEM", "EXIT"]
+            }
+        ]).then(function(r){
+            if(r.options === "EXIT"){
+                console.log("Logging out of database.")
+                connection.end();
+            }else{
+                buyOption();
+            }
+        })
+}
 
+
+//Function shows the user what is currently avaiable in the inventory and prompts the user what to buy.
 function buyOption(){
     connection.query("SELECT * FROM products", function(err, res){
         if(err) throw err;
@@ -40,26 +64,8 @@ function buyOption(){
     })
 }
 
-function mainMenu(){
-    inquirier
-        .prompt([
-            {
-                name:"options",
-                message: "Hello fellow customer, what would you like to do?",
-                type:"list",
-                choices:["BUY AN ITEM", "EXIT"]
-            }
-        ]).then(function(r){
-            if(r.options === "EXIT"){
-                console.log("Logging out of database.")
-                connection.end();
-            }else{
-                buyOption();
-            }
-        })
-}
 
-
+//Function asks the user what to buy
 function promptUser(){
     inquirier
         .prompt([
@@ -82,6 +88,7 @@ function promptUser(){
         })
 }
 
+//Function checks if there is enough of the produt in stock.
 function isAvaiable(id, amount){
     connection.query(`
     SELECT * FROM products WHERE ?`,
@@ -90,10 +97,9 @@ function isAvaiable(id, amount){
     },
     function(err, res){
         if(res.length > 0){
-            // console.log(res)
             if(res[0]["stock_quantity"] >= amount){
                 console.log("Buying product");
-                fullfilOrder(id, amount)
+                fulfillOrder(id, amount)
             }else{
                 console.log("Insufficent quantity");
                 mainMenu();
@@ -107,7 +113,9 @@ function isAvaiable(id, amount){
     }
     )
 }
-function fullfilOrder(id, amount){
+
+//function completes the buy option. The amount that the user buys will be subtracted from the current inventory. Profit is calculated.
+function fulfillOrder(id, amount){
     connection.query(
         `SELECT stock_quantity, price, product_sales FROM products WHERE ?`, [{
             item_id: id

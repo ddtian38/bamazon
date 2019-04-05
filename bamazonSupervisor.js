@@ -1,7 +1,9 @@
+//Installing npms
 const mysql = require("mysql");
 const inquirier = require("inquirer")
 const cTable = require("console.table")
 
+//Creating connectiont to the database
 const connection = mysql.createConnection({
     hosts: "localhost",
     user: "root",
@@ -10,10 +12,12 @@ const connection = mysql.createConnection({
     database: "bamazonDB"
 })
 
+//Once connected main menu is displayed
 connection.connect(
     mainMenu()
 )
 
+//function creates main menu
 function mainMenu(){
     inquirier
         .prompt([
@@ -36,6 +40,7 @@ function mainMenu(){
         })
 }
 
+//Function will display the department table.
 function viewProductSales(){
     var query = "SELECT d.department_id, d.department_name, d.over_head_cost, SUM(p.product_sales) as product_sales, SUM(p.product_sales) - d.over_head_cost as total_profit FROM departments d LEFT JOIN products p on d.department_id = p.department_id GROUP BY d.department_id;"
     connection.query(query, function(err, res){
@@ -57,6 +62,7 @@ function viewProductSales(){
     })
 };
 
+//Function allows the supervisor to create the departments
 function createDepartment(){
     inquirier
         .prompt([
